@@ -269,7 +269,7 @@ def L_model_backward(AL, Y, caches, hidden_layers_activation_fn = "relu"):
     
     for l in range(L - 1, 0, -1):
         current_cache = caches[l - 1]
-        grads["dA" + str(l)], grads["dW" + str(l)], grads["db" + str(l)] = linear_activation_backward(\
+        grads["dA" + str(l - 1)], grads["dW" + str(l)], grads["db" + str(l)] = linear_activation_backward(\
                                 grads["dA" + str(l)], current_cache, hidden_layers_activation_fn)
         
     return grads

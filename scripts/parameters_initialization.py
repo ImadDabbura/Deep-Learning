@@ -14,9 +14,10 @@ def initialize_parameters_zeros(layers_dims):
     L = len(layers_dims)            # number of layers in the network
 
     for l in range(1, L):
-        parameters["W" + str(l)] = np.zeros((layers_dims[l], layers_dims[l - 1]))
+        parameters["W" + str(l)] = np.zeros(
+            (layers_dims[l], layers_dims[l - 1]))
         parameters["b" + str(l)] = np.zeros((layers_dims[l], 1))
-    
+
     return parameters
 
 
@@ -33,9 +34,10 @@ def initialize_parameters_random(layers_dims):
     L = len(layers_dims)            # number of layers in the network
 
     for l in range(1, L):
-        parameters["W" + str(l)] = np.random.randn(layers_dims[l], layers_dims[l - 1]) * 10
+        parameters["W" + str(l)] = np.random.randn(
+            layers_dims[l], layers_dims[l - 1]) * 10
         parameters["b" + str(l)] = np.zeros((layers_dims[l], 1))
-    
+
     return parameters
 
 
@@ -43,8 +45,8 @@ def initialize_parameters_he_xavier(layers_dims, initialization_method="he"):
     """
     Arguments:
     layer_dims -- python array (list) containing the size of each layer.
-    initialization_method -- string specify the initialization method to be used:
-                     "he", "xavier".
+    initialization_method -- string specify the initialization method to be
+                             used: "he", "xavier".
 
     Returns:
     parameters -- python dictionary containing all parameters Wl, bl
@@ -65,7 +67,7 @@ def initialize_parameters_he_xavier(layers_dims, initialization_method="he"):
                 layers_dims[l],
                 layers_dims[l - 1]) * np.sqrt(1 / layers_dims[l - 1])
             parameters["b" + str(l)] = np.zeros((layers_dims[l], 1))
-    
+
     return parameters
 
 
@@ -80,7 +82,7 @@ def model(X, Y, layers_dims, learning_rate=0.01, num_iterations=1000,
     learning_rate -- learning rate of the gradient descent update rule
     num_iterations -- number of iterations of the optimization loop
     print_cost -- if True, it prints the cost every 100 steps
-    hidden_layers_activation_fn -- activation function to be used on hidden 
+    hidden_layers_activation_fn -- activation function to be used on hidden
                                    layers, string: "tanh", "relu"
     initialization_method -- flag to choose which initialization to use
                              ("zeros","random", "he", or "xavier")
@@ -90,7 +92,7 @@ def model(X, Y, layers_dims, learning_rate=0.01, num_iterations=1000,
     """
     # to get consistent results
     np.random.seed(1)
-    
+
     # initialize cost list
     cost_list = []
 
@@ -108,11 +110,12 @@ def model(X, Y, layers_dims, learning_rate=0.01, num_iterations=1000,
     # iterate over num_iterations
     for i in range(num_iterations):
         # iterate over L-layers to get the final output and the cache
-        AL, caches = L_model_forward(X, parameters, hidden_layers_activation_fn)
+        AL, caches = L_model_forward(
+            X, parameters, hidden_layers_activation_fn)
 
         # compute cost to plot it
         cost = compute_cost(AL, Y)
-        
+
         # iterate over L-layers backward to get gradients
         grads = L_model_backward(AL, Y, caches, hidden_layers_activation_fn)
 
@@ -125,25 +128,25 @@ def model(X, Y, layers_dims, learning_rate=0.01, num_iterations=1000,
 
         if i % 100 == 0:
             cost_list.append(cost)
-        
+
     # plot the cost curve
-    plt.figure(figsize = (18, 12))
+    plt.figure(figsize=(18, 12))
     plt.plot(cost_list)
     plt.ylabel("Cost")
     plt.title(
         "Cost curve: learning rate = {} and {} initialization method".format(
             learning_rate, initialization_method))
-    
+
     return parameters
 
 
 def accuracy(X, parameters, Y, activation_fn="relu"):
-        """
+    """
     Arguments:
     X -- data, numpy array of shape (number of examples, num_px * num_px * 3)
     parameters -- python dictionary containing all learnt parameters
     Y -- true "label" vector of shape (1, number of examples)
-    activation_fn -- activation function to be used on hidden 
+    activation_fn -- activation function to be used on hidden
                      layers, string: "tanh", "relu"
 
     Returns:

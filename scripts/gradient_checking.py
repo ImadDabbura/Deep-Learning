@@ -142,8 +142,6 @@ def gradient_check_n(
     gradients_vector = gradients_to_vector(gradients)
 
     # create vector of zeros to be used with epsilon
-    j_plus = np.zeros_like(parameters_vector)
-    j_minus = np.zeros_like(parameters_vector)
     grads_approx = np.zeros_like(parameters_vector)
 
     for i in range(len(parameters_vector)):
@@ -166,16 +164,16 @@ def gradient_check_n(
 
     # compute the difference of numerical and analytical gradients
     numerator = np.linalg.norm(gradients_vector - grads_approx)
-    denominator = np.linalg.norm(grads_approx) +
+    denominator = np.linalg.norm(grads_approx) +\
     np.linalg.norm(gradients_vector)
     difference = numerator / denominator
 
     if difference > 10e-7:
-        print("\033[91m" + "There is a mistake in back-propagation",
+        print("\033[31m" + "There is a mistake in back-propagation",
               "implementation. The difference is: {}".format(difference))
 
     else:
-        print("\033[92m" + "There implementation of back-propagation is fine!",
+        print("\033[32m" + "There implementation of back-propagation is fine!",
               "The difference is: {}".format(difference))
 
     return difference

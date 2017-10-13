@@ -4,9 +4,9 @@ import os
 import numpy as np
 
 # Importing helper functions from local module
-os.chdir("../scripts/")
-
-from coding_deep_neural_network_from_scratch import *
+from coding_deep_neural_network_from_scratch import (L_model_forward,
+                                                     compute_cost,
+                                                     L_model_backward)
 
 
 def dictionary_to_vector(dictionary):

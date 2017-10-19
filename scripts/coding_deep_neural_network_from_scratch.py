@@ -7,7 +7,7 @@ import numpy as np
 def initialize_parameters(layers_dims):
     """
     Initialize parameters dictionary.
-    Weight matrices will be initialized to random values from uniform normal
+    Weight matrices will be initialized to random values from standard normal
     distribution.
     bias vectors will be initialized to zeros.
 

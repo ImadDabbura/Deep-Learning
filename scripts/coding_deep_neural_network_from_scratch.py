@@ -1,21 +1,27 @@
-import numpy as np
+# Import packages
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 # Initialize parameters
 def initialize_parameters(layers_dims):
     """
+    Initialize parameters dictionary.
+    Weight matrices will be initialized to random values from uniform normal
+    distribution.
+    bias vectors will be initialized to zeros.
+
     Arguments:
     layers_dims -- list or numpy array that has the dimensions of each layer
-                   in the network
+                   in the network.
 
     Returns:
     parameters -- dictionary that has the weight matrices and the bias vector
-                  for each layer
+                  for each layer.
     """
     np.random.seed(1)               # to get consistent output
     parameters = {}                 # initialize parameters dictionary
-    L = len(layers_dims)             # number of layers in the network
+    L = len(layers_dims)            # number of layers in the network
 
     for l in range(1, L):           # we dont count input layer
         parameters["W" + str(l)] = np.random.randn(
@@ -32,12 +38,14 @@ def initialize_parameters(layers_dims):
 # define activation functions that will be used in forward propagation
 def sigmoid(Z):
     """
+    Computes the sigmoid of Z element-wise.
+
     Arguments:
-    Z -- Output of linear layer
+    Z -- Output of linear layer.
 
     Returns:
-    A -- output of sigmoid
-    cache -- return Z; it'll be useful for backpropagation
+    A -- output of sigmoid.
+    cache -- return Z; it'll be useful for backpropagation.
     """
     A = 1 / (1 + np.exp(-Z))
     cache = Z
@@ -47,12 +55,14 @@ def sigmoid(Z):
 
 def tanh(Z):
     """
+    Computes the Hyperbolic Tagent of Z elemnet-wise.
+
     Arguments:
-    Z -- Output of linear layer
+    Z -- Output of linear layer.
 
     Returns:
-    A -- output of sigmoid
-    cache -- return Z; it'll be useful for backpropagation
+    A -- output of hyperbolic tangent.
+    cache -- return Z; it'll be useful for backpropagation.
     """
     A = np.tanh(Z)
     cache = Z
@@ -62,12 +72,14 @@ def tanh(Z):
 
 def relu(Z):
     """
+     Computes the Rectified Linear Unit (ReLU) element-wise.
+
     Arguments:
-    Z -- Output of linear layer
+    Z -- Output of linear layer.
 
     Returns:
-    A -- output of ReLU
-    cache -- return Z; it'll be useful for backpropagation
+    A -- output of ReLU.
+    cache -- return Z; it'll be useful for backpropagation.
     """
     A = np.maximum(0, Z)
     cache = Z
@@ -77,12 +89,14 @@ def relu(Z):
 
 def leaky_relu(Z):
     """
+    Computes Leaky Rectified Linear Unit element-wise.
+
     Arguments:
-    Z -- Output of linear layer
+    Z -- Output of linear layer.
 
     Returns:
-    A -- output of ReLU
-    cache -- return Z; it'll be useful for backpropagation
+    A -- output of leaky ReLU.
+    cache -- return Z; it'll be useful for backpropagation.
     """
     A = np.maximum(0.1 * Z, Z)
     cache = Z
@@ -93,14 +107,16 @@ def leaky_relu(Z):
 # define helper functions that will be used in L-model forward prop
 def linear_forward(A_prev, W, b):
     """
+    Computes linear transformation of the input.
+
     Arguments:
-    A_prev -- activations output from previous layer
-    W -- Weight matrix, shape: size of current layer x size of previuos layer
-    b -- bias vector, shape: size of current layer x 1
+    A_prev -- activations output from previous layer.
+    W -- Weight matrix, shape: size of current layer x size of previuos layer.
+    b -- bias vector, shape: size of current layer x 1.
 
     Returns:
-    Z -- Input of activation function
-    cache -- tuple that stores A_prev, W, b to be used in backpropagation
+    Z -- Input of activation function.
+    cache -- tuple that stores A_prev, W, b to be used in backpropagation.
     """
     Z = np.dot(W, A_prev) + b
     cache = (A_prev, W, b)
@@ -110,18 +126,23 @@ def linear_forward(A_prev, W, b):
 
 def linear_activation_forward(A_prev, W, b, activation_fn):
     """
+    Computes post-activation output using non-linear activation function.
+
     Arguments:
-    A_prev -- activations output from previous layer
-    W -- Weight matrix, shape: size of current layer x size of previuos layer
-    b -- bias vector, shape: size of current layer x 1
+    A_prev -- activations output from previous layer.
+    W -- Weight matrix, shape: size of current layer x size of previuos layer.
+    b -- bias vector, shape: size of current layer x 1.
     activation_fn -- string that specify the activation function to be used:
-                     "sigmoid", "tanh", "relu"
+                     "sigmoid", "tanh", "relu".
 
     Returns:
-    A -- Output of the activation function
-    cache -- tuple that stores linear_cache and activation_cache
-             ((A_prev, W, b), Z) to be used in backpropagation
+    A -- Output of the activation function.
+    cache -- tuple that stores linear_cache and activation_cache.
+             ((A_prev, W, b), Z) to be used in backpropagation.
     """
+    assert(activation_fn == "sigmoid" or activation_fn == "tanh" or
+           activation_fn == "relu")
+
     if activation_fn == "sigmoid":
         Z, linear_cache = linear_forward(A_prev, W, b)
         A, activation_cache = sigmoid(Z)
@@ -143,18 +164,21 @@ def linear_activation_forward(A_prev, W, b, activation_fn):
 
 def L_model_forward(X, parameters, hidden_layers_activation_fn="relu"):
     """
+    Computes the output layer through looping over all units in topological
+    order.
+
     Arguments:
-    X -- Input matrix of shape input_size x training_examples
+    X -- Input matrix of shape input_size x training_examples.
     parameters -- dictionary that contains all the weight matrices and bias
-                  vectors for all layers
+                  vectors for all layers.
     hidden_layers_activation_fn -- activation function to be used on hidden
-                                   layers, string: "tanh", "relu"
+                                   layers, string: "tanh", "relu".
 
     Returns:
     AL -- probability vector of shape 1 x training_examples
     caches -- list that contains L tuples where each layer has: A_prev, W, b, Z
     """
-    A = X                      # since input matrix A0
+    A = X                           # since input matrix A0
     caches = []                     # initialize the caches list
     L = len(parameters) // 2        # number of layer in the network
 
@@ -178,9 +202,11 @@ def L_model_forward(X, parameters, hidden_layers_activation_fn="relu"):
 # compute cross-entropy cost
 def compute_cost(AL, Y):
     """
+    Computes the Cross-Entropy cost.
+
     Arguments:
-    AL -- probability vector of shape 1 x training_examples
-    Y -- true "label" vector
+    AL -- probability vector of shape 1 x training_examples.
+    Y -- true "label" vector.
 
     Returns:
     cost -- cross-entropy cost
@@ -196,12 +222,14 @@ def compute_cost(AL, Y):
 # back-propagation
 def sigmoid_gradient(dA, Z):
     """
+    Computes the gradient of sigmoid output w.r.t input Z.
+
     Arguments:
-    dA -- post-activation gradient, of any shape
-    Z -- Input used for the activation fn on this layer
+    dA -- post-activation gradient, of any shape.
+    Z -- Input used for the activation fn on this layer.
 
     Returns:
-    dZ -- Gradient of the cost with respect to Z
+    dZ -- Gradient of the cost with respect to Z.
     """
     A, Z = sigmoid(Z)
     dZ = dA * A * (1 - A)
@@ -211,12 +239,14 @@ def sigmoid_gradient(dA, Z):
 
 def tanh_gradient(dA, Z):
     """
+    Computes the gradient of hyperbolic tangent output w.r.t input Z.
+
     Arguments:
-    dA -- post-activation gradient, of any shape
-    Z -- Input used for the activation fn on this layer
+    dA -- post-activation gradient, of any shape.
+    Z -- Input used for the activation fn on this layer.
 
     Returns:
-    dZ -- Gradient of the cost with respect to Z
+    dZ -- Gradient of the cost with respect to Z.
     """
     A, Z = tanh(Z)
     dZ = dA * (1 - np.square(A))
@@ -226,15 +256,17 @@ def tanh_gradient(dA, Z):
 
 def relu_gradient(dA, Z):
     """
+    Computes the gradient of ReLU output w.r.t input Z.
+
     Arguments:
-    dA -- post-activation gradient, of any shape
-    Z -- Input used for the activation fn on this layer
+    dA -- post-activation gradient, of any shape.
+    Z -- Input used for the activation fn on this layer.
 
     Returns:
-    dZ -- Gradient of the cost with respect to Z
+    dZ -- Gradient of the cost with respect to Z.
     """
-    dZ = np.array(dA, copy=True)
-    dZ[dZ <= 0] = 0
+    A, Z = relu(Z)
+    dZ = np.multiply(dA, np.int64(A > 0))
 
     return dZ
 
@@ -242,17 +274,20 @@ def relu_gradient(dA, Z):
 # define helper functions that will be used in L-model back-prop
 def linear_backword(dZ, cache):
     """
+    Computes the gradient of the output w.r.t weight, bias, and post-activation
+    output of (l - 1) layers at layer l.
+
     Arguments:
     dZ -- Gradient of the cost with respect to the linear output
-          (of current layer l)
+          (of current layer l).
     cache -- tuple of values (A_prev, W, b) coming from the forward
-             propagation in the current layer
+             propagation in the current layer.
 
     Returns:
     dA_prev -- Gradient of the cost with respect to the activation
-               (of the previous layer l-1)
-    dW -- Gradient of the cost with respect to W (current layer l)
-    db -- Gradient of the cost with respect to b (current layer l)
+               (of the previous layer l-1).
+    dW -- Gradient of the cost with respect to W (current layer l).
+    db -- Gradient of the cost with respect to b (current layer l).
     """
     A_prev, W, b = cache
     m = A_prev.shape[1]
@@ -271,18 +306,18 @@ def linear_backword(dZ, cache):
 def linear_activation_backward(dA, cache, activation_fn):
     """
     Arguments:
-    dA -- post-activation gradient for current layer l
-    cache -- tuple of values (linear_cache, activation_cache)
+    dA -- post-activation gradient for current layer l.
+    cache -- tuple of values (linear_cache, activation_cache).
     activation -- the activation to be used in this layer, stored as a string:
-                  "sigmoid", "tanh", or "relu"
+                  "sigmoid", "tanh", or "relu".
 
     Returns:
     dA_prev -- Gradient of the cost with respect to the activation
-               (of the previous layer l-1), same shape as A_prev
+               (of the previous layer l-1), same shape as A_prev.
     dW -- Gradient of the cost with respect to W (current layer l),
-          same shape as W
+          same shape as W.
     db -- Gradient of the cost with respect to b (current layer l),
-          same shape as b
+          same shape as b.
     """
     linear_cache, activation_cache = cache
 
@@ -303,16 +338,19 @@ def linear_activation_backward(dA, cache, activation_fn):
 
 def L_model_backward(AL, Y, caches, hidden_layers_activation_fn="relu"):
     """
+    Computes the gradient of output layer w.r.t weights, biases, etc. starting
+    on the output layer in reverse topological order.
+
     Arguments:
     AL -- probability vector, output of the forward propagation
-          (L_model_forward())
-    Y -- true "label" vector (containing 0 if non-cat, 1 if cat)
-    caches -- list of caches
+          (L_model_forward()).
+    Y -- true "label" vector (containing 0 if non-cat, 1 if cat).
+    caches -- list of caches.
     hidden_layers_activation_fn -- activation function to be used on hidden
-                                   layers, string: "tanh", "relu"
+                                   layers, string: "tanh", "relu".
 
     Returns:
-    grads -- A dictionary with the gradients
+    grads -- A dictionary with the gradients.
     """
     Y = Y.reshape(AL.shape)
     L = len(caches)
@@ -337,12 +375,14 @@ def L_model_backward(AL, Y, caches, hidden_layers_activation_fn="relu"):
 # define the function to update both weight matrices and bias vectors
 def update_parameters(parameters, grads, learning_rate):
     """
+    Update the parameters' values using gradient descent rule.
+
     Arguments:
-    parameters -- python dictionary containing your parameters
-    grads -- python dictionary containing gradients, output of L_model_backward
+    parameters -- python dictionary containing parameters.
+    grads -- python dictionary of all gradients, output of L_model_backward.
 
     Returns:
-    parameters -- python dictionary containing parameters
+    parameters -- python dictionary containing parameters.
     """
     L = len(parameters) // 2
 
@@ -358,22 +398,25 @@ def update_parameters(parameters, grads, learning_rate):
 # define the multi-layer model using all the helper functions we wrote before
 def L_layer_model(
         X, Y, layers_dims, learning_rate=0.01, num_iterations=3000,
-        print_cost=False, hidden_layers_activation_fn="relu"):
+        print_cost=True, hidden_layers_activation_fn="relu"):
     """
+    Implements multilayer neural network using gradient descent as the
+    learning algorithm.
+
     Arguments:
-    X -- data, numpy array of shape (number of examples, num_px * num_px * 3)
+    X -- data, numpy array of shape (number of examples, num_px * num_px * 3).
     Y -- true "label" vector (containing 0 if cat, 1 if non-cat), of shape
-         (1, number of examples)
+         (1, number of examples).
     layers_dims -- list containing the input size and each layer size, of
                    length (number of layers + 1).
-    learning_rate -- learning rate of the gradient descent update rule
-    num_iterations -- number of iterations of the optimization loop
-    print_cost -- if True, it prints the cost every 100 steps
+    learning_rate -- learning rate of the gradient descent update rule.
+    num_iterations -- number of iterations of the optimization loop.
+    print_cost -- if True, it prints the cost every 100 steps.
     hidden_layers_activation_fn -- activation function to be used on hidden
-                                   layers, string: "tanh", "relu"
+                                   layers, string: "tanh", "relu".
 
     Returns:
-    parameters -- parameters learnt by the model. They can then be used
+    parameters -- parameters learnt by the model. They can then be used.
                   to predict.
     """
     # to get consistents output
@@ -408,9 +451,30 @@ def L_layer_model(
             cost_list.append(cost)
 
     # plot the cost curve
-    plt.figure(figsize=(18, 12))
     plt.plot(cost_list)
+    plt.xlabel("Iterations (per hundreds)")
     plt.ylabel("Cost")
     plt.title("Cost curve for the learning rate = {}".format(learning_rate))
 
     return parameters
+
+
+def accuracy(X, parameters, Y, activation_fn="relu"):
+    """
+    Computes the average accuracy rate.
+
+    Arguments:
+    X -- data, numpy array of shape (number of examples, num_px * num_px * 3).
+    parameters -- python dictionary containing all learnt parameters.
+    Y -- true "label" vector of shape (1, number of examples).
+    activation_fn -- activation function to be used on hidden
+                     layers, string: "tanh", "relu".
+
+    Returns:
+    accuracy -- accuracy rate after applying parameters on the input data
+    """
+    probs, caches = L_model_forward(X, parameters, activation_fn)
+    labels = (probs >= 0.5) * 1
+    accuracy = np.mean(labels == Y) * 100
+
+    return "The accuracy rate is: {:.2f}%.".format(accuracy)

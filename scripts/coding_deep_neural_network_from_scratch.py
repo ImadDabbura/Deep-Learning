@@ -404,11 +404,9 @@ def L_layer_model(
     learning algorithm.
 
     Arguments:
-    X -- data, numpy array of shape (number of examples, num_px * num_px * 3).
-    Y -- true "label" vector (containing 0 if cat, 1 if non-cat), of shape
-         (1, number of examples).
-    layers_dims -- list containing the input size and each layer size, of
-                   length (number of layers + 1).
+    X -- input data, shape: num_px * num_px * 3 x number of examples.
+    Y -- true "label" vector, shape: 1 x number of examples.
+    layers_dims -- list containing the size and each layer.
     learning_rate -- learning rate of the gradient descent update rule.
     num_iterations -- number of iterations of the optimization loop.
     print_cost -- if True, it prints the cost every 100 steps.

@@ -1,6 +1,3 @@
-# Importing modules/packages
-import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -8,11 +5,15 @@ import numpy as np
 from coding_deep_neural_network_from_scratch import (L_model_forward,
                                                      compute_cost,
                                                      L_model_backward,
-                                                     update_parameters)
+                                                     update_parameters,
+                                                     accuracy)
 
 
 def initialize_parameters_zeros(layers_dims):
     """
+    Initializes the parameters dictionary to all zeros for both weights and
+    bias.
+
     Arguments:
     layer_dims -- python array (list) containing the size of each layer.
 
@@ -33,6 +34,10 @@ def initialize_parameters_zeros(layers_dims):
 
 def initialize_parameters_random(layers_dims):
     """
+    Initializes the parameters dictionary rabdomly from standard normal
+    distribution multiplied by 10 for weight matrices and zeros for bias
+    vectors.
+
     Arguments:
     layer_dims -- python array (list) containing the size of each layer.
 
@@ -53,6 +58,9 @@ def initialize_parameters_random(layers_dims):
 
 def initialize_parameters_he_xavier(layers_dims, initialization_method="he"):
     """
+    Initializes the parameters dictionary for weights based on "He" and
+    "Xavier" methods and zeros for bias vectors.
+
     Arguments:
     layer_dims -- python array (list) containing the size of each layer.
     initialization_method -- string specify the initialization method to be
@@ -85,10 +93,13 @@ def model(X, Y, layers_dims, learning_rate=0.01, num_iterations=1000,
           print_cost=True, hidden_layers_activation_fn="relu",
           initialization_method="he"):
     """
+    Implements multilayer neural network using gradient descent as the
+    learning algorithm.
+
     Arguments:
-    X -- data, numpy array of shape (number of examples, num_px * num_px * 3)
-    Y -- true "label" vector of shape (1, number of examples)
-    layers_dims -- list containing the input size and each layer size.
+    X -- input data, shape: num_px * num_px * 3 x number of examples.
+    Y -- true "label" vector, shape: 1 x number of examples.
+    layers_dims -- list containing the size and each layer.
     learning_rate -- learning rate of the gradient descent update rule
     num_iterations -- number of iterations of the optimization loop
     print_cost -- if True, it prints the cost every 100 steps
@@ -140,30 +151,11 @@ def model(X, Y, layers_dims, learning_rate=0.01, num_iterations=1000,
             cost_list.append(cost)
 
     # plot the cost curve
-    plt.figure(figsize=(18, 12))
     plt.plot(cost_list)
+    plt.xlabel("Iterations (per hundreds)")
     plt.ylabel("Cost")
     plt.title(
         "Cost curve: learning rate = {} and {} initialization method".format(
             learning_rate, initialization_method))
 
     return parameters
-
-
-def accuracy(X, parameters, Y, activation_fn="relu"):
-    """
-    Arguments:
-    X -- data, numpy array of shape (number of examples, num_px * num_px * 3)
-    parameters -- python dictionary containing all learnt parameters
-    Y -- true "label" vector of shape (1, number of examples)
-    activation_fn -- activation function to be used on hidden
-                     layers, string: "tanh", "relu"
-
-    Returns:
-    accuracy -- accuracy rate after applying parameters on the input data
-    """
-    probs, caches = L_model_forward(X, parameters, activation_fn)
-    labels = (probs > 0.5) * 1
-    accuracy = np.mean(labels == Y) * 100
-
-    return "The accuracy rate is: {:.2f}%.".format(accuracy)

@@ -12,6 +12,7 @@ This repository is a collection of Jupyter notebooks that cover a variety of top
 2. [Parameters Initialization](/notebooks/Parameters-Initialization.ipynb)
 3. [Gradient Checking](/notebooks/Gradient-Checking.ipynb)
 4. [Regularization](/notebooks/Regularization.ipynb)
+5. [Regularization - nbviewer](https://nbviewer.jupyter.org/github/ImadDabbura/Deep-Learning/blob/master/notebooks/Regularization.ipynb)
 
 I highly recommend downloading the notebooks to be able to work in your computing environment. Having the notebook locally allows you to run the code and see how is everything related to each other and maybe change some values to see how that would change the algorithm's output.
 

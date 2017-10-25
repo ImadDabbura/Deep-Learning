@@ -13,6 +13,7 @@ The following links are to Jupyter Notebook Viewer (nbviewer). Please find the a
 3. [Gradient Checking](https://nbviewer.jupyter.org/github/ImadDabbura/Deep-Learning/blob/master/notebooks/Gradient-Checking.ipynb)
 5. [Regularization](https://nbviewer.jupyter.org/github/ImadDabbura/Deep-Learning/blob/master/notebooks/Regularization.ipynb)
 6. [Dropout](https://nbviewer.jupyter.org/github/ImadDabbura/Deep-Learning/blob/master/notebooks/Dropout.ipynb)
+7. [Optimization Algorithms](https://nbviewer.jupyter.org/github/ImadDabbura/Deep-Learning/blob/master/notebooks/Optimization-Algorithms.ipynb)
 
 I highly recommend downloading the notebooks to be able to work in your computing environment. Having the notebook locally allows you to run the code and see how is everything related to each other and maybe change some values to see how that would change the algorithm's output.
 

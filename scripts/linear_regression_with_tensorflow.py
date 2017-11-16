@@ -1,3 +1,8 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+
+
 class TfLinReg(object):
     """
     Implementing linear regression using computational graph with tensorflow.

@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
+from random_minibatches import random_mini_batches
+
 
 def create_placeholders(n_x, n_y):
     """
@@ -12,14 +14,14 @@ def create_placeholders(n_x, n_y):
     n_y -- number of classes --> scalar.
 
     Returns:
-    X -- placeholder for the data input, shape: (n_x, None) & dtype "float".
-    Y -- placeholder for the input labels, shape: (n_y, None) & dtype "int".
+    X -- placeholder for the data input, shape: (None, n_x) & dtype "float".
+    Y -- placeholder for the input labels, shape: (None, n_y) & dtype "int".
     """
     X = tf.placeholder(dtype=tf.float32,
-                       shape=(n_x, None),
+                       shape=(None, n_x),
                        name="X")
     Y = tf.placeholder(dtype=tf.float32,
-                       shape=(n_y, None),
+                       shape=(None, n_y),
                        name="Y")
 
     return X, Y
@@ -44,12 +46,12 @@ def initialize_parameters(layers_dims):
             dtype=tf.float32,
             initializer=tf.contrib.layers.xavier_initializer())
         parameters["b" + str(l)] = tf.get_variable(
-            name=("b" + str(l)), shape=(layers_dims[l], 1),
+            name=("b" + str(l)), shape=(1, layers_dims[l]),
             dtype=tf.float32, initializer=tf.zeros_initializer())
 
         assert parameters["W" + str(l)].get_shape() == (layers_dims[l],
                                                         layers_dims[l - 1])
-        assert parameters["b" + str(l)].get_shape() == (layers_dims[l], 1)
+        assert parameters["b" + str(l)].get_shape() == (1, layers_dims[l])
 
     return parameters
 
@@ -59,7 +61,7 @@ def convert_one_hot(Y, num_classes):
     Creates one hot matrix.
 
     Arguments:
-    Y -- label vector, shape: 1 x number of examples.
+    Y -- label vector, shape: number of examples x 1.
     num_classes -- number of classes --> scalar.
 
     Returns:
@@ -70,7 +72,7 @@ def convert_one_hot(Y, num_classes):
 
     with tf.Session() as sess:
         y_one_hot = tf.one_hot(
-            indices=Y, depth=num_classes, axis=0, name="y_one_hot")
+            indices=Y, depth=num_classes, name="y_one_hot")
         y_one_hot = sess.run(y_one_hot)
 
     return y_one_hot
@@ -81,8 +83,8 @@ def forward_propagation(X, parameters, activation_fn):
     Implements the forward propagation for the model:
 
     Arguments:
-    X -- input dataset placeholder, of shape (input size, number of examples).
-    parameters -- python dictionary containing your parameters.
+    X -- input dataset placeholder, of shape (number of examples, input size).
+    parameters -- python dictionary containing parameters.
     activation_fn -- activation function used on hidden layers, string:
                      "tanh" or "relu".
 
@@ -103,13 +105,14 @@ def forward_propagation(X, parameters, activation_fn):
     for l in range(1, L):
         A_prev = output["A" + str(l - 1)]
         output["Z" + str(l)] = tf.add(
-            tf.matmul(parameters["W" + str(l)], A_prev),
+            tf.matmul(A_prev, tf.transpose(parameters["W" + str(l)])),
             parameters["b" + str(l)], name=("Z" + str(l)))
         output["A" + str(l)] = activation_function(output["Z" + str(l)])
 
     output["Z" + str(L)] = tf.add(
-        tf.matmul(parameters["W" + str(L)], output["A" + str(L - 1)]),
-        parameters["b" + str(L)], name=("Z" + str(L)))
+        tf.matmul(output["A" + str(L - 1)],
+        tf.transpose(parameters["W" + str(L)])), parameters["b" + str(L)],
+        name=("Z" + str(L)))
 
     return output["Z" + str(L)]
 
@@ -120,15 +123,15 @@ def compute_cost(ZL, Y):
 
     Arguments:
     ZL -- output of forward propagation (output of the last LINEAR unit).
-    Y -- labels vector placeholder, same shape as Z3.
+    Y -- labels vector placeholder, same shape as ZL.
 
     Returns:
     cost - Tensor of the cost function.
     """
-    logits = tf.transpose(ZL)
-    labels = tf.transpose(Y)
+    # logits = tf.transpose(ZL)
+    # labels = tf.transpose(Y)
 
-    cost = tf.losses.softmax_cross_entropy(labels, logits)
+    cost = tf.losses.softmax_cross_entropy(onehot_labels=Y, logits=ZL)
 
     return cost
 
@@ -141,11 +144,11 @@ def model(X_train, Y_train, X_test, Y_test, layers_dims, learning_rate=0.0001,
 
     Arguments:
     X_train -- training input data, shape:
-               num of features x num of training examples.
+               num of training examples x num of features.
     Y_train -- training label vector, shape:
-               output size, number of training examples.
-    X_test -- test input data, shape: num of features x num of test examples.
-    Y_test -- test label vector, shape: output size, number of test examples.
+               number of training examples x output size.
+    X_test -- test input data, shape: num of test examples x num pf features.
+    Y_test -- test label vector, shape: num of test examples x output size.
     layers-dims -- list of the size of each layer.
     learning_rate -- step size of the gradient.
     num_epochs -- number of epochs of the optimization loop.
@@ -157,8 +160,9 @@ def model(X_train, Y_train, X_test, Y_test, layers_dims, learning_rate=0.0001,
     Returns:
     parameters -- parameters learnt by the model.
     """
-    n_x = X_train.shape[0]
-    n_y = Y_train.shape[0]
+    n_x = X_train.shape[1]
+    n_y = Y_train.shape[1]
+    m = X_train.shape[0]
     costs = []
     seed = 1
     tf.set_random_seed(seed)
@@ -197,7 +201,7 @@ def model(X_train, Y_train, X_test, Y_test, layers_dims, learning_rate=0.0001,
         for epoch in range(num_epochs):
             mini_batches = random_mini_batches(
                 X_train, Y_train, minibatch_size, seed)
-            num_minibatches = len(mini_batches)
+            num_minibatches = m // minibatch_size
             seed += 1
             epoch_cost = 0
 
@@ -221,7 +225,7 @@ def model(X_train, Y_train, X_test, Y_test, layers_dims, learning_rate=0.0001,
         print("Parameters have been trained!")
 
         # Compute the correct predictions
-        correct_prediction = tf.equal(tf.argmax(ZL), tf.argmax(Y))
+        correct_prediction = tf.equal(tf.argmax(ZL, axis=1), tf.argmax(Y, axis=1))
 
         # Compute accuracy
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))

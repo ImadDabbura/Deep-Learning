@@ -73,7 +73,7 @@ def nn_with_keras(
 
     history = model.fit(X_train, y_one_hot, batch_size=batch_size,
                         epochs=num_epochs, verbose=verbose,
-                        validation_split=verbose)
+                        validation_split=validation_split)
     # Compute predictions
     train_preds = model.predict_classes(X_train, verbose=verbose)
     test_preds = model.predict_classes(X_test, verbose=verbose)

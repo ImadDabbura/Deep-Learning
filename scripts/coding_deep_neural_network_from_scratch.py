@@ -10,7 +10,7 @@ import numpy as np
 def initialize_parameters(layers_dims):
     """
     Initialize parameters dictionary.
-    
+
     Weight matrices will be initialized to random values from uniform normal
     distribution.
     bias vectors will be initialized to zeros.
@@ -25,11 +25,11 @@ def initialize_parameters(layers_dims):
     parameters : dict
         weight matrix and the bias vector for each layer.
     """
-    np.random.seed(1)               
+    np.random.seed(1)
     parameters = {}
-    L = len(layers_dims)            
+    L = len(layers_dims)
 
-    for l in range(1, L):           
+    for l in range(1, L):
         parameters["W" + str(l)] = np.random.randn(
             layers_dims[l], layers_dims[l - 1]) * 0.01
         parameters["b" + str(l)] = np.zeros((layers_dims[l], 1))
@@ -171,7 +171,8 @@ def linear_activation_forward(A_prev, W, b, activation_fn):
     A : 2d-array
         output of the activation function.
     cache : tuple
-        stores linear_cache and activation_cache. ((A_prev, W, b), Z) to be used in backpropagation.
+        stores linear_cache and activation_cache. ((A_prev, W, b), Z) to be
+        used in backpropagation.
     """
     assert activation_fn == "sigmoid" or activation_fn == "tanh" or \
         activation_fn == "relu"
@@ -207,7 +208,7 @@ def L_model_forward(X, parameters, hidden_layers_activation_fn="relu"):
     parameters : dict
         contains all the weight matrices and bias vectors for all layers.
     hidden_layers_activation_fn : str
-        activation function to be used on hidden layers, string: "tanh", "relu".
+        activation function to be used on hidden layers: "tanh","relu".
 
     Returns
     -------
@@ -216,9 +217,9 @@ def L_model_forward(X, parameters, hidden_layers_activation_fn="relu"):
     caches : list
         that contains L tuples where each layer has: A_prev, W, b, Z.
     """
-    A = X                           
-    caches = []                     
-    L = len(parameters) // 2        
+    A = X
+    caches = []
+    L = len(parameters) // 2
 
     for l in range(1, L):
         A_prev = A
@@ -253,7 +254,7 @@ def compute_cost(AL, y):
     cost : float
         binary cross-entropy cost.
     """
-    m = y.shape[1]              
+    m = y.shape[1]
     cost = - (1 / m) * np.sum(
         np.multiply(y, np.log(AL)) + np.multiply(1 - y, np.log(1 - AL)))
 
@@ -336,7 +337,8 @@ def linear_backword(dZ, cache):
     dZ : 2d-array
         gradient of the cost w.r.t. the linear output (of current layer l).
     cache : tuple
-        values of (A_prev, W, b) coming from the forward propagation in the current layer.
+        values of (A_prev, W, b) coming from the forward propagation in the
+        current layer.
 
     Returns
     -------
@@ -375,7 +377,8 @@ def linear_activation_backward(dA, cache, activation_fn):
     Returns
     -------
     dA_prev : 2d-array
-        gradient of the cost w.r.t. the activation (of the previous layer l-1), same shape as A_prev.
+        gradient of the cost w.r.t. the activation (of previous layer l-1),
+        same shape as A_prev.
     dW : 2d-array
         gradient of the cost w.r.t. W (current layer l), same shape as W.
     db : 2d-array
@@ -406,7 +409,8 @@ def L_model_backward(AL, y, caches, hidden_layers_activation_fn="relu"):
     Arguments
     ---------
     AL : 2d-array
-        probability vector, output of the forward propagation (L_model_forward()).
+        probability vector, output of the forward propagation
+        (L_model_forward()).
     y : 2d-array
         true "label" vector (containing 0 if non-cat, 1 if cat).
     caches : list
@@ -488,12 +492,13 @@ def L_layer_model(
     print_cost : bool
         if True, it prints the cost every 100 steps.
     hidden_layers_activation_fn : str
-        activation function to be used on hidden layers, string: "tanh", "relu".
+        activation function to be used on hidden layers: "tanh", "relu".
 
     Returns
     -------
     parameters : dict
-        parameters learnt by the model. They can then be used to predict test examples.
+        parameters learnt by the model. They can then be used to predict test
+        examples.
     """
     np.random.seed(1)
 

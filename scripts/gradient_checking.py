@@ -139,7 +139,7 @@ def forward_prop_cost(X, parameters, Y, hidden_layers_activation_fn="tanh"):
     return cost
 
 
-def gradient_check_n(
+def gradient_check(
         parameters, gradients, X, Y, layers_dims, epsilon=1e-7,
         hidden_layers_activation_fn="tanh"):
     """

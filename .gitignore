@@ -4,3 +4,4 @@ data/*.jpg
 *checkpoints
 data/train/*.jpg
 data/test/*.jpg
+scripts/__pycache__/*

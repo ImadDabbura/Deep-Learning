@@ -1,29 +1,35 @@
-# Importing modules/packages
-import os
+"""
+Implement gradient checking of fully connected neural network.
+"""
+
 
 import numpy as np
+from numpy.linalg import norm
 
-# Importing helper functions from local module
-from coding_deep_neural_network_from_scratch import (L_model_forward,
-                                                     compute_cost,
-                                                     L_model_backward)
+from .coding_neural_network_from_scratch import L_model_forward, compute_cost
 
 
-def dictionary_to_vector(dictionary):
+def dictionary_to_vector(params_dict):
     """
-    Roll all dictionary into a single vector.
+    Roll a dictionary into a single vector.
+
+    Arguments
+    ---------
+    params_dict : dict
+        learned parameters.
+
+    Returns
+    -------
+    params_vector : array
+        vector of all parameters concatenated.
     """
     count = 0
-
-    for key in dictionary.keys():
-        new_vector = np.reshape(dictionary[key], (-1, 1))
-
+    for key in params_dict.keys():
+        new_vector = np.reshape(params_dict[key], (-1, 1))
         if count == 0:
             theta_vector = new_vector
-
         else:
-            theta_vector = np.concatenate((theta_vector, new_vector), axis=0)
-
+            theta_vector = np.concatenate((theta_vector, new_vector))
         count += 1
 
     return theta_vector
@@ -33,29 +39,33 @@ def vector_to_dictionary(vector, layers_dims):
     """
     Unroll parameters vector to dictionary using layers dimensions.
 
-    Arguments:
-    vector -- parameters vector
-    layers_dims -- list or numpy array that has the dimensions of each layer
-                   in the network.
+    Arguments
+    ---------
+    vector : array
+        parameters vector.
+    layers_dims : list or array_like
+        dimensions of each layer in the network.
 
-    Returns:
-    parameters -- python dictionary containing all parameters
+    Returns
+    -------
+    parameters : dict
+        dictionary storing all parameters.
     """
     L = len(layers_dims)
     parameters = {}
     k = 0
 
     for l in range(1, L):
-        # create temp variable to store dimension used on each layer
+        # Create temp variable to store dimension used on each layer
         w_dim = layers_dims[l] * layers_dims[l - 1]
         b_dim = layers_dims[l]
 
-        # create temporary var to be used in slicing parameters vector
+        # Create temp var to be used in slicing parameters vector
         temp_dim = k + w_dim
 
         # add parameters to the dictionary
-        parameters["W" + str(l)] = vector[k:temp_dim].reshape(
-            layers_dims[l], layers_dims[l - 1])
+        parameters["W" + str(l)] = vector[
+            k:temp_dim].reshape(layers_dims[l], layers_dims[l - 1])
         parameters["b" + str(l)] = vector[
             temp_dim:temp_dim + b_dim].reshape(b_dim, 1)
 
@@ -66,51 +76,64 @@ def vector_to_dictionary(vector, layers_dims):
 
 def gradients_to_vector(gradients):
     """
-    Roll all gradients into a single vector containing only dW and db
+    Roll all gradients into a single vector containing only dW and db.
+
+    Arguments
+    ---------
+    gradients : dict
+        storing gradients of weights and biases for all layers: dA, dW, db.
+
+    Returns
+    -------
+    new_grads : array
+        vector of only dW and db gradients.
     """
-    # get the number of indices for the gradients to iterate over
+    # Get the number of indices for the gradients to iterate over
     valid_grads = [key for key in gradients.keys()
                    if not key.startswith("dA")]
-    L = len(valid_grads) // 2
+    L = len(valid_grads)// 2
     count = 0
-
-    # iterate over all gradients and append them to new_grads list
+    
+    # Iterate over all gradients and append them to new_grads list
     for l in range(1, L + 1):
-
         if count == 0:
             new_grads = gradients["dW" + str(l)].reshape(-1, 1)
             new_grads = np.concatenate(
-                (new_grads, gradients["db" + str(l)].reshape(-1, 1)), axis=0)
-
+                (new_grads, gradients["db" + str(l)].reshape(-1, 1)))
         else:
             new_grads = np.concatenate(
-                (new_grads, gradients["dW" + str(l)].reshape(-1, 1)), axis=0)
+                (new_grads, gradients["dW" + str(l)].reshape(-1, 1)))
             new_grads = np.concatenate(
-                (new_grads, gradients["db" + str(l)].reshape(-1, 1)), axis=0)
-
+                (new_grads, gradients["db" + str(l)].reshape(-1, 1)))
         count += 1
-
+        
     return new_grads
 
 
 def forward_prop_cost(X, parameters, Y, hidden_layers_activation_fn="tanh"):
     """
     Implements the forward propagation and computes the cost.
+    
+    Arguments
+    ---------
+    X : 2d-array
+        input data, shape: number of features x number of examples.
+    parameters : dict
+        parameters to use in forward prop.
+    Y : array
+        true "label", shape: 1 x number of examples.
+    hidden_layers_activation_fn : str
+        activation function to be used on hidden layers: "tanh", "relu".
 
-    Arguments:
-    X -- input data of shape number of features x number of examples.
-    parameters -- python dictionary containing all parameters.
-    Y -- true "label" of shape 1 x number of examples.
-    hidden_layers_activation_fn -- activation function to be used on hidden
-                                   layers,string: "tanh", "relu"
-
-    Returns:
-    cost -- cross-entropy cost.
+    Returns
+    -------
+    cost : float
+        cross-entropy cost.
     """
-    # compute forward prop
-    AL, caches = L_model_forward(X, parameters, hidden_layers_activation_fn)
+    # Compute forward prop
+    AL, _ = L_model_forward(X, parameters, hidden_layers_activation_fn)
 
-    # compute cost
+    # Compute cost
     cost = compute_cost(AL, Y)
 
     return cost
@@ -122,58 +145,63 @@ def gradient_check_n(
     """
     Checks if back_prop computes correctly the gradient of the cost output by
     forward_prop.
-
-    Arguments:
-    parameters -- python dictionary containing all parameters.
-    gradients -- output of back_prop, contains gradients of the cost ww.r.t
-    the parameters.
-    X -- input data of shape number of features x number of examples.
-    Y -- true "label" of shape 1 x number of examples.
-    epsilon -- tiny shift to the input to compute approximate gradient
-    layers_dims -- list or numpy array that has the dimensions of each layer
-                   in the network.
-
-    Returns:
-    difference -- difference between approx gradient and back_prop gradient
+    
+    Arguments
+    ---------
+    parameters : dict
+        storing all parameters to use in forward prop.
+    gradients : dict
+        gradients of weights and biases for all layers: dA, dW, db.
+    X : 2d-array
+        input data, shape: number of features x number of examples.
+    Y : array
+        true "label", shape: 1 x number of examples.
+    epsilon : 
+        tiny shift to the input to compute approximate gradient.
+    layers_dims : list or array_like
+        dimensions of each layer in the network.
+    
+    Returns
+    -------
+    difference : float
+        difference between approx gradient and back_prop gradient
     """
-
-    # roll out parameters and gradients dictionaries
+    
+    # Roll out parameters and gradients dictionaries
     parameters_vector = dictionary_to_vector(parameters)
     gradients_vector = gradients_to_vector(gradients)
 
-    # create vector of zeros to be used with epsilon
+    # Create vector of zeros to be used with epsilon
     grads_approx = np.zeros_like(parameters_vector)
 
     for i in range(len(parameters_vector)):
-        # compute cost of theta + epsilon
+        # Compute cost of theta + epsilon
         theta_plus = np.copy(parameters_vector)
         theta_plus[i] = theta_plus[i] + epsilon
         j_plus = forward_prop_cost(
             X, vector_to_dictionary(theta_plus, layers_dims), Y,
             hidden_layers_activation_fn)
 
-        # compute cost of theta - epsilon
+        # Compute cost of theta - epsilon
         theta_minus = np.copy(parameters_vector)
         theta_minus[i] = theta_minus[i] - epsilon
         j_minus = forward_prop_cost(
             X, vector_to_dictionary(theta_minus, layers_dims), Y,
             hidden_layers_activation_fn)
 
-        # compute numerical gradients
+        # Compute numerical gradients
         grads_approx[i] = (j_plus - j_minus) / (2 * epsilon)
 
-    # compute the difference of numerical and analytical gradients
-    numerator = np.linalg.norm(gradients_vector - grads_approx)
-    denominator = np.linalg.norm(grads_approx) +\
-    np.linalg.norm(gradients_vector)
+    # Compute the difference of numerical and analytical gradients
+    numerator = norm(gradients_vector - grads_approx)
+    denominator = norm(grads_approx) + np.linalg.norm(gradients_vector)
     difference = numerator / denominator
 
     if difference > 10e-7:
-        print("\033[31m" + "There is a mistake in back-propagation",
-              "implementation. The difference is: {}".format(difference))
-
+        print ("\033[31mThere is a mistake in back-propagation " +\
+               "implementation. The difference is: {}".format(difference))
     else:
-        print("\033[32m" + "There implementation of back-propagation is fine!",
-              "The difference is: {}".format(difference))
+        print ("\033[32mThere implementation of back-propagation is fine! "+\
+               "The difference is: {}".format(difference))
 
     return difference

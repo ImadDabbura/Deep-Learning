@@ -1,4 +1,3 @@
-data/*.jpg
 .ipynb_checkpoints/*
 .DS_Store
 *checkpoints

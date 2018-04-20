@@ -1,7 +1,7 @@
 
 # Deep Learning
 <p align="center">
-<img src = "./images/deep-learning.jpeg" style = "height:300px; width:350px"><br>
+<img src = "notebooks/images/deep-learning.jpeg" style = "height:300px; width:350px"><br>
 </p>
 
 This repository is a collection of Jupyter notebooks that cover a variety of topics on Deep Learning implemented in python. The notebooks meant to be for beginners as well as practitioners who want to have an overview of deep learning topics in an interactive computing environment (Jupyter). While coding the algorithms/functions, I'll try my best to explain the theory behind each step and include some derivations as well.

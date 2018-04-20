@@ -6,10 +6,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from .coding_neural_network_from_scratch import (L_model_forward,
-                                                     compute_cost,
-                                                     L_model_backward,
-                                                     update_parameters,
-                                                     accuracy)
+                                                 compute_cost,
+                                                 L_model_backward,
+                                                 update_parameters,
+                                                 accuracy)
 
 
 def initialize_parameters_zeros(layers_dims):

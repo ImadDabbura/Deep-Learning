@@ -41,8 +41,8 @@ def load_dataset_catvsdog(path, images_extension='jpg'):
 
     # Derive true label vector
     Y = np.zeros((1, m))
-    for i, img in enumerate(images):
-        if img.startswith("cat"):
+    for i, img in enumerate(path.glob(f'*.{images_extension}')):
+        if img.stem.startswith("cat"):
             Y[:, i] = 1
         else:
             Y[:, i] = 0

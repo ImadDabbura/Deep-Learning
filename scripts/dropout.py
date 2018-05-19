@@ -1,15 +1,18 @@
+"""
+Implement dropout to fully connected neural network.
+"""
+
 import os
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-# local modules
-from coding_deep_neural_network_from_scratch import (initialize_parameters,
-                                                     linear_activation_forward,
-                                                     compute_cost,
-                                                     linear_activation_backward,
-                                                     update_parameters,
-                                                     accuracy)
+from coding_neural_network_from_scratch import (initialize_parameters,
+                                                linear_activation_forward,
+                                                compute_cost,
+                                                linear_activation_backward,
+                                                update_parameters,
+                                                accuracy)
 from gradient_checking import dictionary_to_vector
 
 
@@ -19,18 +22,22 @@ def drop_out_matrices(layers_dims, m, keep_prob):
     and back-prop on each layer. We'll use random numbers from uniform
     distribution.
 
-    Arguments:
-    layers_dims -- list containing the size each of layer, length:
-                   number of layers + 1.
-    m -- number of training examples --> scalar.
-    keep_prob -- list of probabilities of keeping a neuron (unit) active for
-                 each layer on each iteration.
+    Arguments
+    ---------
+    layers_dims : list
+        input size and size of each layer, length: number of layers + 1.
+    m : int
+        number of training examples.
+    keep_prob : list
+        probabilities of keeping a neuron (unit) active for each layer on each
+        iteration.
 
-    Returns:
-    D -- dictionary of dropout matrices for each layer l. Each dropout
-         matrix on each layer would have the same dimension as post activation
-         output matrix "A". For example:
-         "D1" shape: number of units x number of examples
+    Returns
+    -------
+    D : dict
+        dropout matrices for each layer l. Each dropout matrix on each layer
+        would have the same dimension as post activation output matrix "A".
+        For example: "D1" shape: number of units x number of examples.
     """
     np.random.seed(1)
     D = {}
@@ -39,12 +46,9 @@ def drop_out_matrices(layers_dims, m, keep_prob):
     for l in range(L):
         # initialize the random values for the dropout matrix
         D[str(l)] = np.random.rand(layers_dims[l], m)
-        # Convert it to 0/1 to shut down neurons corresponding to each
-        # element
+        # Convert it to 0/1 to shut down neurons corresponding to each element
         D[str(l)] = D[str(l)] < keep_prob[l]
-
         assert(D[str(l)].shape == (layers_dims[l], m))
-
     return D
 
 
@@ -54,22 +58,28 @@ def L_model_forward(
     Computes the output layer through looping over all units in topological
     order.
 
-    Arguments:
-    X -- Input matrix of shape input_size x training_examples.
-    parameters -- dictionary that contains all the weight matrices and bias
-                  vectors for all layers.
-    D -- dictionary of dropout matrices for each layer l.
-    keep_prob -- list of probabilities of keeping a neuron (unit) active for
-                 each layer on each iteration.
-    hidden_layers_activation_fn -- activation function to be used on hidden
-                                   layers, string: "tanh", "relu".
+    X : 2d-array
+        input matrix of shape input_size x training_examples.
+    parameters : dict
+        contains all the weight matrices and bias vectors for all layers.
+    D : dict
+        dropout matrices for each layer l.
+    keep_prob : list
+        probabilities of keeping a neuron (unit) active for each layer on each
+        iteration.
+    hidden_layers_activation_fn : str
+        activation function to be used on hidden layers: "tanh","relu".
 
-    Returns:
-    AL -- probability vector of shape 1 x training_examples
-    caches -- list that contains L tuples where each layer has: A_prev, W, b, Z
+
+    Returns
+    -------
+    AL : 2d-array
+        probability vector of shape 1 x training_examples.
+    caches : list
+        that contains L tuples where each layer has: A_prev, W, b, Z.
     """
     A = X                           # since input matrix A0
-    A = np.multiply(A, D[str(l)])
+    A = np.multiply(A, D[str(0)])
     A /= keep_prob[l]
     caches = []                     # initialize the caches list
     L = len(parameters) // 2        # number of layer in the network
@@ -106,19 +116,27 @@ def L_model_backward(
     Computes the gradient of output layer w.r.t weights, biases, etc. starting
     on the output layer in reverse topological order.
 
-    Arguments:
-    AL -- probability vector, output of the forward propagation
-          (L_model_forward()).
-    Y -- true "label" vector (containing 0 if non-cat, 1 if cat).
-    caches -- list of caches.
-    D -- dictionary of dropout matrices for each layer l.
-    keep_prob -- list of probabilities of keeping a neuron (unit) active for
-                 each layer on each iteration.
-    hidden_layers_activation_fn -- activation function to be used on hidden
-                                   layers, string: "tanh", "relu".
+    Arguments
+    ---------
+    AL : 2d-array
+        probability vector, output of the forward propagation
+        (L_model_forward()).
+    y : 2d-array
+        true "label" vector (containing 0 if non-cat, 1 if cat).
+    caches : list
+        list of caches for all layers.
+    D : dict
+        dropout matrices for each layer l.
+    keep_prob : list
+        probabilities of keeping a neuron (unit) active for each layer on each
+        iteration.
+    hidden_layers_activation_fn :
+        activation function used on hidden layers: "tanh", "relu".
 
-    Returns:
-    grads -- A dictionary with the gradients.
+    Returns
+    -------
+    grads : dict
+        gradients.
     """
     Y = Y.reshape(AL.shape)
     L = len(caches)
@@ -154,24 +172,34 @@ def model_with_dropout(
         X, Y, layers_dims, keep_prob, learning_rate=0.01, num_iterations=3000,
         print_cost=True, hidden_layers_activation_fn="relu"):
     """
-    Implements multilayer neural network using gradient descent as the
+    Implements multilayer neural network with dropout using gradient descent as the
     learning algorithm.
 
-    Arguments:
-    X -- input data, shape: num_px * num_px * 3 x number of examples.
-    Y -- true "label" vector, shape: 1 x number of examples.
-    layers_dims -- list containing the size and each layer.
-    keep_prob -- list of probabilities of keeping a neuron (unit) active for
-                 each layer on each iteration.
-    learning_rate -- learning rate of the gradient descent update rule.
-    num_iterations -- number of iterations of the optimization loop.
-    print_cost -- if True, it prints the cost every 100 steps.
-    hidden_layers_activation_fn -- activation function to be used on hidden
-                                   layers, string: "tanh", "relu".
+    Arguments
+    ---------
+    X : 2d-array
+        data, shape: number of examples x num_px * num_px * 3.
+    y : 2d-array
+        true "label" vector, shape: 1 x number of examples.
+    layers_dims : list
+        input size and size of each layer, length: number of layers + 1.
+    keep_prob : list
+        probabilities of keeping a neuron (unit) active for each layer on each
+        iteration.
+    learning_rate : float
+        learning rate of the gradient descent update rule.
+    num_iterations : int
+        number of iterations of the optimization loop.
+    print_cost : bool
+        if True, it prints the cost every 100 steps.
+    hidden_layers_activation_fn : str
+        activation function to be used on hidden layers: "tanh", "relu".
 
-    Returns:
-    parameters -- parameters learnt by the model. They can then be used.
-                  to predict.
+    Returns
+    -------
+    parameters : dict
+        parameters learnt by the model. They can then be used to predict test
+        examples.
     """
     # get number of examples
     m = X.shape[1]

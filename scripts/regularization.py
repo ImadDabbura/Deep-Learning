@@ -1,44 +1,47 @@
-# Loading packages
-import os
+"""
+Implement L2 regularization of a fully connected neural network.
+"""
+
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-# local modules
-os.chdir("../scripts/")
-from coding_deep_neural_network_from_scratch import (initialize_parameters,
-                                                     linear_forward,
-                                                     linear_activation_forward,
-                                                     L_model_forward,
-                                                     compute_cost,
-                                                     relu_gradient,
-                                                     sigmoid_gradient,
-                                                     tanh_gradient,
-                                                     update_parameters,
-                                                     accuracy)
+from coding_neural_network_from_scratch import (initialize_parameters,
+                                                L_model_forward,
+                                                compute_cost,
+                                                relu_gradient,
+                                                sigmoid_gradient,
+                                                tanh_gradient,
+                                                update_parameters,
+                                                accuracy)
 from gradient_checking import dictionary_to_vector
 
 
-# Regularization (L2)
-def compute_cost_reg(AL, Y, parameters, lambd=0):
+def compute_cost_reg(AL, y, parameters, lambd=0):
     """
     Computes the Cross-Entropy cost function with L2 regularization.
 
-    Arguments:
-    AL -- post-activation, output of forward propagation, shape:
-          output size x number of examples.
-    Y --  labels vector, shape: output size x number of examples.
-    parameters -- python dictionary containing parameters of the model.
-    lambd -- regularization hyperparameter --> scalar.
+    Arguments
+    ---------
+    AL : 2d-array
+        probability vector of shape 1 x training_examples.
+    y : 2d-array
+        true "label" vector.
+    parameters : dict
+        contains all the weight matrices and bias vectors for all layers.
+    lambd : float
+        regularization hyperparameter.
 
-    Returns:
-    cost - value of the regularized loss function.
+    Returns
+    -------
+    cost : float
+        binary cross-entropy cost.
     """
     # number of examples
-    m = Y.shape[1]
+    m = y.shape[1]
 
     # compute traditional cross entropy cost
-    cross_entropy_cost = compute_cost(AL, Y)
+    cross_entropy_cost = compute_cost(AL, y)
 
     # convert parameters dictionary to vector
     parameters_vector = dictionary_to_vector(parameters)
@@ -55,21 +58,27 @@ def compute_cost_reg(AL, Y, parameters, lambd=0):
 
 def linear_backword_reg(dZ, cache, lambd=0):
     """
-    Computes the gradient of the output w.r.t weight, bias, and post-activation
+    Computes the gradient of the output w.r.t weight, bias, & post-activation
     output of (l - 1) layers at layer l.
-    
-    Arguments:
-    dZ -- Gradient of the cost with respect to the linear output
-          (of current layer l).
-    cache -- tuple of values (A_prev, W, b) coming from the forward
-             propagation in the current layer.
-    lambd -- regularization hyperparameter --> scalar.
 
-    Returns:
-    dA_prev -- Gradient of the cost with respect to the activation
-               (of the previous layer l-1).
-    dW -- Gradient of the cost with respect to W (current layer l).
-    db -- Gradient of the cost with respect to b (current layer l).
+    Arguments
+    ---------
+    dZ : 2d-array
+        gradient of the cost w.r.t. the linear output (of current layer l).
+    cache : tuple
+        values of (A_prev, W, b) coming from the forward propagation in the
+        current layer.
+    lambd : float
+        regularization hyperparameter.
+
+    Returns
+    -------
+    dA_prev : 2d-array
+        gradient of the cost w.r.t. the activation (of the previous layer l-1).
+    dW : 2d-array
+        gradient of the cost w.r.t. W (current layer l).
+    db : 2d-array
+        gradient of the cost w.r.t. b (current layer l).
     """
     A_prev, W, b = cache
     m = A_prev.shape[1]
@@ -87,20 +96,26 @@ def linear_backword_reg(dZ, cache, lambd=0):
 
 def linear_activation_backward_reg(dA, cache, activation_fn="relu", lambd=0):
     """
-    Arguments:
-    dA -- post-activation gradient for current layer l
-    cache -- tuple of values (linear_cache, activation_cache)
-    activation -- the activation to be used in this layer, stored as a string:
-                  "sigmoid", "tanh", or "relu"
-    lambd -- regularization hyperparameter --> scalar.
+    Arguments
+    ---------
+    dA : 2d-array
+        post-activation gradient for current layer l.
+    cache : tuple
+        values of (linear_cache, activation_cache).
+    activation : str
+        activation used in this layer: "sigmoid", "tanh", or "relu".
+    lambd : float
+        regularization hyperparameter.
 
-    Returns:
-    dA_prev -- Gradient of the cost with respect to the activation
-               (of the previous layer l-1), same shape as A_prev
-    dW -- Gradient of the cost with respect to W (current layer l),
-          same shape as W
-    db -- Gradient of the cost with respect to b (current layer l),
-          same shape as b
+    Returns
+    -------
+    dA_prev : 2d-array
+        gradient of the cost w.r.t. the activation (of previous layer l-1),
+        same shape as A_prev.
+    dW : 2d-array
+        gradient of the cost w.r.t. W (current layer l), same shape as W.
+    db : 2d-array
+        gradient of the cost w.r.t. b (current layer l), same shape as b.
     """
     linear_cache, activation_cache = cache
 
@@ -119,29 +134,36 @@ def linear_activation_backward_reg(dA, cache, activation_fn="relu", lambd=0):
     return dA_prev, dW, db
 
 
-def L_model_backward_reg(AL, Y, caches, hidden_layers_activation_fn="relu",
+def L_model_backward_reg(AL, y, caches, hidden_layers_activation_fn="relu",
                          lambd=0):
     """
     Computes the gradient of output layer w.r.t weights, biases, etc. starting
     on the output layer in reverse topological order.
-    
-    Arguments:
-    AL -- probability vector, output of the forward propagation
-          (L_model_forward()).
-    Y -- true vector.
-    caches -- list of caches.
-    hidden_layers_activation_fn -- activation function to be used on hidden
-                                   layers, string: "tanh", "relu".
-    lambd -- regularization hyperparameter --> scalar.
 
-    Returns:
-    grads -- A dictionary with the gradients.
+    Arguments
+    ---------
+    AL : 2d-array
+        probability vector, output of the forward propagation
+        (L_model_forward()).
+    y : 2d-array
+        true "label" vector (containing 0 if non-cat, 1 if cat).
+    caches : list
+        list of caches for all layers.
+    hidden_layers_activation_fn :
+        activation function used on hidden layers: "tanh", "relu".
+    lambd : float
+        regularization hyperparameter.
+
+    Returns
+    -------
+    grads : dict
+        gradients.
     """
-    Y = Y.reshape(AL.shape)
+    y = y.reshape(AL.shape)
     L = len(caches)
     grads = {}
 
-    dAL = np.divide(AL - Y, np.multiply(AL, 1 - AL))
+    dAL = np.divide(AL - y, np.multiply(AL, 1 - AL))
 
     grads["dA" + str(L - 1)], grads["dW" + str(L)], grads["db" + str(L)] =\
         linear_activation_backward_reg(dAL, caches[L - 1], "sigmoid", lambd)
@@ -157,28 +179,35 @@ def L_model_backward_reg(AL, Y, caches, hidden_layers_activation_fn="relu",
 
 
 def model_with_regularization(
-        X, Y, layers_dims, learning_rate=0.01, num_iterations=3000,
-        print_cost=False, hidden_layers_activation_fn="relu", lambd=0,
-        keep_prob=1):
+        X, y, layers_dims, learning_rate=0.01,  num_epochs=3000,
+        print_cost=False, hidden_layers_activation_fn="relu", lambd=0):
     """
     Implements L-Layer neural network.
 
-    Arguments:
-    X -- input data, shape: num_px * num_px * 3 x number of examples.
-    Y -- label vector, shape: 1 x number of examples.
-    layers_dims -- list containing the input size and each layer size, of
-                   length (number of layers + 1).
-    learning_rate -- learning rate of the gradient descent update rule.
-    num_iterations -- number of iterations of the optimization loop.
-    print_cost -- if True, it prints the cost every 100 steps.
-    hidden_layers_activation_fn -- activation function to be used on hidden
-                                   layers, string: "tanh", "relu".
-    lambd -- regularization hyperparameter --> scalar.
-    keep_prob - probability of keeping a neuron active during drop-out, scalar.
+    Arguments
+    ---------
+    X : 2d-array
+        data, shape: number of examples x num_px * num_px * 3.
+    y : 2d-array
+        true "label" vector, shape: 1 x number of examples.
+    layers_dims : list
+        input size and size of each layer, length: number of layers + 1.
+    learning_rate : float
+        learning rate of the gradient descent update rule.
+     num_epochs : int
+        number of times to over the training data.
+    print_cost : bool
+        if True, it prints the cost every 100 steps.
+    hidden_layers_activation_fn : str
+        activation function to be used on hidden layers: "tanh", "relu".
+    lambd : float
+        regularization hyperparameter.
 
-    Returns:
-    parameters -- parameters learnt by the model. They can then be used
-                  to predict.
+    Returns
+    -------
+    parameters : dict
+        parameters learnt by the model. They can then be used to predict test
+        examples.
     """
     # get number of examples
     m = X.shape[1]
@@ -193,24 +222,24 @@ def model_with_regularization(
     cost_list = []
 
     # implement gradient descent
-    for i in range(num_iterations):
+    for i in range(num_epochs):
         # compute forward propagation
         AL, caches = L_model_forward(
             X, parameters, hidden_layers_activation_fn)
 
         # compute regularized cost
-        reg_cost = compute_cost_reg(AL, Y, parameters, lambd)
+        reg_cost = compute_cost_reg(AL, y, parameters, lambd)
 
         # compute gradients
         grads = L_model_backward_reg(
-            AL, Y, caches, hidden_layers_activation_fn, lambd)
+            AL, y, caches, hidden_layers_activation_fn, lambd)
 
         # update parameters
         parameters = update_parameters(parameters, grads, learning_rate)
 
         # print cost
         if (i + 1) % 100 == 0 and print_cost:
-            print("The regularized cost after {} iterations: {}".format(
+            print("The cost after {} iterations: {}".format(
                 (i + 1), reg_cost))
 
         # append cost
